@@ -46,7 +46,7 @@ def processDir():
                 try:
                     os.chmod(os.path.join(lazylibrarian.DESTINATION_DIR, authorname).encode(lazylibrarian.SYS_ENCODING), 0777);
                 except Exception, e:
-                    logger.info("Could not chmod path: " + str(file2));
+                    logger.debug("Could not chmod author directory");
 
                 dest_path = authorname + os.sep + bookname
                 dic = {'<':'', '>':'', '=':'', '?':'', '"':'', ',':'', '*':'', ':':'', ';':'', '\'':''}
@@ -110,7 +110,7 @@ def processDestination(pp_path=None, dest_path=None, authorname=None, bookname=N
             try:
                 os.chmod(dest_path, 0777);
             except Exception, e:
-                logger.info("Could not chmod path: " + str(file2));
+                logger.info("Could not chmod path: " + str(dest_path));
         except OSError:
             logger.error('Could not create destination folder or rename the downloaded ebook. Check permissions of: ' + lazylibrarian.DESTINATION_DIR)
             pp = False
