@@ -101,29 +101,31 @@ def processDestination(pp_path=None, dest_path=None, authorname=None, bookname=N
         logger.debug('%s does not exist, so it\'s safe to create it' % dest_path)
     else:
         logger.debug('%s already exsists. It will be overwritten' % dest_path)
-	try:
-		if lazylibrarian.DESTINATION_COPY:
-			shutil.copytree(pp_path, dest_path)
-			logger.debug('Successfully copied %s to %s.' % (pp_path, dest_path))
-		else:
-			shutil.move(pp_path, dest_path)
-			logger.debug('Successfully moved %s to %s.' % (pp_path, dest_path))
-		pp = True
+    try:
+        if lazylibrarian.DESTINATION_COPY:
+            logger.debug('Attempting to copy tree')
+            shutil.copytree(pp_path, dest_path)
+            logger.debug('Successfully copied %s to %s.' % (pp_path, dest_path))
+        else:
+            logger.debug('Attempting to move tree')
+            shutil.move(pp_path, dest_path)
+            logger.debug('Successfully moved %s to %s.' % (pp_path, dest_path))
+        pp = True
         
-		#try and rename the actual book file
-		for file2 in os.listdir(dest_path):
-			logger.debug('file extension: ' + str(file2).split('.')[-1])
-			if ((file2.lower().find(".jpg") <= 0) & (file2.lower().find(".opf") <= 0)):
-				logger.debug('file: ' + str(file2))
-				os.rename(os.path.join(dest_path, file2), os.path.join(dest_path, bookname + '.' + str(file2).split('.')[-1]))
-		try:
-			os.chmod(dest_path, 0777);
-		except Exception, e:
-			logger.debug("Could not chmod path: " + str(dest_path));
-	except OSError:
-		logger.info('Could not create destination folder or rename the downloaded ebook. Check permissions of: ' + lazylibrarian.DESTINATION_DIR)
-		pp = False
-	return pp
+        #try and rename the actual book file
+        for file2 in os.listdir(dest_path):
+            logger.debug('file extension: ' + str(file2).split('.')[-1])
+            if ((file2.lower().find(".jpg") <= 0) & (file2.lower().find(".opf") <= 0)):
+                logger.debug('file: ' + str(file2))
+                os.rename(os.path.join(dest_path, file2), os.path.join(dest_path, bookname + '.' + str(file2).split('.')[-1]))
+        try:
+            os.chmod(dest_path, 0777);
+        except Exception, e:
+            logger.debug("Could not chmod path: " + str(dest_path));
+    except OSError:
+        logger.info('Could not create destination folder or rename the downloaded ebook. Check permissions of: ' + lazylibrarian.DESTINATION_DIR)
+        pp = False
+    return pp
 
 def processIMG(dest_path=None, bookimg=None):
     #handle pictures
