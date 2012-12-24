@@ -2,7 +2,7 @@
 function initHeader() {
     //settings
     var header = $("#container header");
-    var fadeSpeed = 100, fadeTo = 0.5, topDistance = 20;
+    var fadeSpeed = 100, fadeTo = 1.0, topDistance = 20;
     var topbarME = function () { $(header).fadeTo(fadeSpeed, 1); }, topbarML = function () { $(header).fadeTo(fadeSpeed, fadeTo); };
     var inside = false;
     //do

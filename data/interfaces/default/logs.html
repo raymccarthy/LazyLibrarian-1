@@ -79,10 +79,15 @@
             });
         $('.dataTables_filter input').attr("placeholder", "Seach table here");
         
-        // Refresh the log table
-        setInterval(function() {
-            $('#log_table').dataTable().fnDraw();
-        }, 10000);
+        // dont keep refreshing the log table on mobile devices
+        var isiPad = navigator.userAgent.match(/iPad/i) != null;
+        if (!isiPad && !((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)))
+        {
+            // Refresh the log table
+            setInterval(function() {
+                $('#log_table').dataTable().fnDraw();
+            }, 10000);
+        }
     });
     </script>
 </%def>

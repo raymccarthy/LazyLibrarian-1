@@ -52,7 +52,7 @@ table#book_table td#language { display:none;  }
 table#book_table td#stars { display:none; }
 
 /* Log */
-table#log_table { background-color: white; }
+table#log_table { background-color: white; margin-left:5px; margin-right:5px; max-width:100%; width:99%; }
 table#log_table th#timestamp { text-align: left; width: 150px; }
 table#log_table th#level {  }
 table#log_table th#message { text-align: left; min-width: 100px; }
