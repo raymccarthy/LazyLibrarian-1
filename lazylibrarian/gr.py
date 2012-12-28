@@ -3,7 +3,7 @@ from xml.etree import ElementTree
 from xml.etree.ElementTree import Element, SubElement
 
 import lazylibrarian
-from lazylibrarian import logger, formatter, database
+from lazylibrarian import logger, formatter, database, SimpleCache
 
 import time
 
@@ -20,10 +20,15 @@ class GoodReads:
         URL = 'http://www.goodreads.com/api/author_url/?' + urllib.urlencode(self.name) + '&' + urllib.urlencode(self.params)
         logger.info("Searching for author with name: %s" % self.name)
 
+        # Cache our request
+        request = urllib2.Request(URL)
+        opener = urllib2.build_opener(SimpleCache.CacheHandler(".AuthorCache"), SimpleCache.ThrottlingProcessor(5))
+        resp = opener.open(request)
+
         try:
-            sourcexml = ElementTree.parse(urllib2.urlopen(URL, timeout=20))
-        except (urllib2.URLError, IOError, EOFError), e:
-            logger.error("Error fetching authorid: ", e)
+            sourcexml = ElementTree.parse(resp)
+        except Exception, e:
+            logger.error("Error fetching authorid: " + str(e))
         
         rootxml = sourcexml.getroot()
         resultxml = rootxml.getiterator('author')
@@ -45,10 +50,19 @@ class GoodReads:
     def get_author_info(self, authorid=None):
 
         URL = 'http://www.goodreads.com/author/show/' + authorid + '.xml?' + urllib.urlencode(self.params)
-        sourcexml = ElementTree.parse(urllib2.urlopen(URL, timeout=60))
-        rootxml = sourcexml.getroot()
-        resultxml = rootxml.find('author')
-        author_dict = {}
+
+        # Cache our request
+        request = urllib2.Request(URL)
+        opener = urllib2.build_opener(SimpleCache.CacheHandler(".AuthorCache"), SimpleCache.ThrottlingProcessor(5))
+        resp = opener.open(request)
+
+        try:
+            sourcexml = ElementTree.parse(resp)
+            rootxml = sourcexml.getroot()
+            resultxml = rootxml.find('author')
+            author_dict = {}
+        except Exception, e:
+            logger.error("Error fetching author ID: " + str(e))
 
         if not len(rootxml):
             logger.info('No author found with ID: ' + authorid)
@@ -69,7 +83,16 @@ class GoodReads:
     def get_author_books(self, authorid=None):
 
         URL = 'http://www.goodreads.com/author/list/' + authorid + '.xml?' + urllib.urlencode(self.params) 
-        sourcexml = ElementTree.parse(urllib2.urlopen(URL, timeout=60))
+
+        try:
+            # Cache our request
+            request = urllib2.Request(URL)
+            opener = urllib2.build_opener(SimpleCache.CacheHandler(".AuthorCache"), SimpleCache.ThrottlingProcessor(5))
+            resp = opener.open(request)
+            sourcexml = ElementTree.parse(resp)
+        except Exception, e:
+            logger.error("Error fetching author info: " + str(e))
+
         rootxml = sourcexml.getroot()
         resultxml = rootxml.getiterator('book')
         books_dict = []
@@ -112,8 +135,16 @@ class GoodReads:
 						if (book.find('isbn13').text is not None):
 							BOOK_URL = 'http://www.goodreads.com/book/isbn?isbn=' + book.find('isbn13').text + '&' + urllib.urlencode(self.params) 
 							logger.debug(u"Book URL: " + str(BOOK_URL))
-							uOpen = urllib2.urlopen(BOOK_URL, timeout=60)
-							BOOK_sourcexml = ElementTree.parse(uOpen)
+							
+							try:
+							    # Cache our request
+							    request = urllib2.Request(set_url)
+							    opener = urllib2.build_opener(SimpleCache.CacheHandler(".AuthorCache"), SimpleCache.ThrottlingProcessor(5))
+							    resp = opener.open(request)
+							except Exception, e:
+							    logger.error("Error finding results: ", e)
+
+							BOOK_sourcexml = ElementTree.parse(resp)
 							BOOK_rootxml = BOOK_sourcexml.getroot()
 							bookLanguage = BOOK_rootxml.find('./book/language_code').text
 							logger.debug(u"language: " + str(BOOK_rootxml.find('./book/language_code').text))
@@ -157,7 +188,16 @@ class GoodReads:
 
 				loopCount = loopCount + 1
 				URL = 'http://www.goodreads.com/author/list/' + authorid + '.xml?' + urllib.urlencode(self.params) + '&page=' + str(loopCount)
-				sourcexml = ElementTree.parse(urllib2.urlopen(URL, timeout=60))
+
+				try:
+				    # Cache our request
+				    request1 = urllib2.Request(URL)
+				    opener1 = urllib2.build_opener(SimpleCache.CacheHandler(".AuthorCache"), SimpleCache.ThrottlingProcessor(5))
+				    resp1 = opener1.open(request1)
+				except Exception, e:
+				    logger.error("Error finding results: " + str(e))				
+
+				sourcexml = ElementTree.parse(resp1)
 				rootxml = sourcexml.getroot()
 				resultxml = rootxml.getiterator('book')
 					
@@ -174,7 +214,16 @@ class GoodReads:
 		logger.info('Searching for author at: %s' % set_url)
 
 		try:
-			sourcexml = ElementTree.parse(urllib2.urlopen(set_url, timeout=60))
+
+			try:
+			    # Cache our request
+			    request = urllib2.Request(set_url)
+			    opener = urllib2.build_opener(SimpleCache.CacheHandler(".AuthorCache"), SimpleCache.ThrottlingProcessor(5))
+			    resp = opener.open(request)
+			    sourcexml = ElementTree.parse(resp)
+			except Exception, e:
+			    logger.error("Error finding results: " + str(e))
+
 			rootxml = sourcexml.getroot()
 			resultxml = rootxml.getiterator('work')
 			author_dict = []

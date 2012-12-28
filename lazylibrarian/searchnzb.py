@@ -20,9 +20,9 @@ def searchbook(books=None):
         searchbooks = myDB.select('SELECT BookID, AuthorName, Bookname from books WHERE Status="Wanted"')
 
         # Clear cache
-        if os.path.exists(".urllib2cache"):
-            for f in os.listdir(".urllib2cache"):
-                os.unlink("%s/%s" % (".urllib2cache", f))
+        if os.path.exists(".ProviderCache"):
+            for f in os.listdir(".ProviderCache"):
+                os.unlink("%s/%s" % (".ProviderCache", f))
 
         # Clearing throttling timeouts
         t = SimpleCache.ThrottlingProcessor()

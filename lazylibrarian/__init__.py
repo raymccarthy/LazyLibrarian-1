@@ -250,9 +250,9 @@ def initialize():
         logger.lazylibrarian_log.initLogger(loglevel=LOGLEVEL)
 
         # Clearing cache
-        if os.path.exists(".urllib2cache"):
-            for f in os.listdir(".urllib2cache"):
-                os.unlink("%s/%s" % (".urllib2cache", f))
+        if os.path.exists(".ProviderCache"):
+            for f in os.listdir(".ProviderCache"):
+                os.unlink("%s/%s" % (".ProviderCache", f))
         # Clearing throttling timeouts
         t = SimpleCache.ThrottlingProcessor()
         t.lastRequestTime.clear()
