@@ -47,49 +47,49 @@ def processDir():
                 		booklang = metadata['BookLang']
                 		bookpub = metadata['BookPub']
 
-                	try:
-                		os.chmod(os.path.join(lazylibrarian.DESTINATION_DIR, authorname).encode(lazylibrarian.SYS_ENCODING), 0777);
-                	except Exception, e:
-                		logger.debug("Could not chmod author directory");
+                		try:
+                		    os.chmod(os.path.join(lazylibrarian.DESTINATION_DIR, authorname).encode(lazylibrarian.SYS_ENCODING), 0777);
+                		except Exception, e:
+                		    logger.debug("Could not chmod author directory");
 
-                	dest_path = authorname + os.sep + bookname
-                	dic = {'<':'', '>':'', '=':'', '?':'', '"':'', ',':'', '*':'', ':':'', ';':'', '\'':''}
-                	dest_path = formatter.latinToAscii(formatter.replace_all(dest_path, dic))
-                	dest_path = os.path.join(lazylibrarian.DESTINATION_DIR, dest_path).encode(lazylibrarian.SYS_ENCODING)
+                		dest_path = authorname + os.sep + bookname
+                		dic = {'<':'', '>':'', '=':'', '?':'', '"':'', ',':'', '*':'', ':':'', ';':'', '\'':''}
+                		dest_path = formatter.latinToAscii(formatter.replace_all(dest_path, dic))
+                		dest_path = os.path.join(lazylibrarian.DESTINATION_DIR, dest_path).encode(lazylibrarian.SYS_ENCODING)
 
-                	processBook = processDestination(pp_path, dest_path, authorname, bookname)
+                		processBook = processDestination(pp_path, dest_path, authorname, bookname)
 
-                	if processBook:
+                		if processBook:
 
-                		ppcount = ppcount+1
+                		    ppcount = ppcount+1
 
-                		# try image
-                		processIMG(dest_path, bookimg)
+                		    # try image
+                		    processIMG(dest_path, bookimg)
 
-                		# try metadata
-                		processOPF(dest_path, authorname, bookname, bookisbn, book['BookID'], bookpub, bookdate, bookdesc, booklang)
+                		    # try metadata
+                		    processOPF(dest_path, authorname, bookname, bookisbn, book['BookID'], bookpub, bookdate, bookdesc, booklang)
 
-                    	#update nzbs
-                		controlValueDict = {"NZBurl": book['NZBurl']}
-                		newValueDict = {"Status": "Success"}
-                		myDB.upsert("wanted", newValueDict, controlValueDict)
+                		    #update nzbs
+                		    controlValueDict = {"NZBurl": book['NZBurl']}
+                		    newValueDict = {"Status": "Success"}
+                		    myDB.upsert("wanted", newValueDict, controlValueDict)
 
-                    	#update books
-                		controlValueDict = {"BookID": book['BookID']}
-                		newValueDict = {"Status": "Open"}
-                		myDB.upsert("books", newValueDict, controlValueDict)
+                		    #update books
+                		    controlValueDict = {"BookID": book['BookID']}
+                		    newValueDict = {"Status": "Open"}
+                		    myDB.upsert("books", newValueDict, controlValueDict)
 
-                    	#update authors
-                		query = 'SELECT COUNT(*) FROM books WHERE AuthorName="%s" AND (Status="Have" OR Status="Open")' % authorname
-                		countbooks = myDB.action(query).fetchone()
-                		havebooks = int(countbooks[0])
-                		controlValueDict = {"AuthorName": authorname}
-                		newValueDict = {"HaveBooks": havebooks}
-                		myDB.upsert("authors", newValueDict, controlValueDict)
+                		    #update authors
+                		    query = 'SELECT COUNT(*) FROM books WHERE AuthorName="%s" AND (Status="Have" OR Status="Open")' % authorname
+                		    countbooks = myDB.action(query).fetchone()
+                		    havebooks = int(countbooks[0])
+                		    controlValueDict = {"AuthorName": authorname}
+                		    newValueDict = {"HaveBooks": havebooks}
+                		    myDB.upsert("authors", newValueDict, controlValueDict)
 
-                		logger.info('Successfully processed: %s - %s' % (authorname, bookname))
-                	else:
-                		logger.info('Postprocessing for %s has failed.' % bookname)
+                		    logger.info('Successfully processed: %s - %s' % (authorname, bookname))
+                		else:
+                		    logger.info('Postprocessing for %s has failed.' % bookname)
         if ppcount:
             logger.info('%s books are downloaded and processed.' % ppcount)
         else:
