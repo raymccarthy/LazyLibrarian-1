@@ -16,8 +16,19 @@ def searchbook(books=None):
     searchlist1 = []
 
     if books is None:
+        # We are performing a backlog search
         searchbooks = myDB.select('SELECT BookID, AuthorName, Bookname from books WHERE Status="Wanted"')
+
+        # Clear cache
+        if os.path.exists(".urllib2cache"):
+            for f in os.listdir(".urllib2cache"):
+                os.unlink("%s/%s" % (".urllib2cache", f))
+
+        # Clearing throttling timeouts
+        t = SimpleCache.ThrottlingProcessor()
+        t.lastRequestTime.clear()
     else:
+        # The user has added a new book
         searchbooks = []
         for book in books:
             searchbook = myDB.select('SELECT BookID, AuthorName, BookName from books WHERE BookID=? AND Status="Wanted"', [book['bookid']])
