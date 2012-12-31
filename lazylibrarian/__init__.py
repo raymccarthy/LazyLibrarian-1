@@ -393,6 +393,17 @@ def dbcheck():
     conn.commit()
     c.close()
 
+    try:
+        myDB = database.DBConnection()
+        author = myDB.select('SELECT AuthorID FROM authors WHERE AuthorName IS NULL')
+        if author:
+            logger.info('Removing un-named author from database')
+            authorid = author[0]["AuthorID"];
+            myDB.action('DELETE from authors WHERE AuthorID=?', [authorid])
+            myDB.action('DELETE from books WHERE AuthorID=?', [authorid])
+    except Exception, z:
+        logger.info('Error: ' + str(z))
+
 def start():
     global __INITIALIZED__, started
 
