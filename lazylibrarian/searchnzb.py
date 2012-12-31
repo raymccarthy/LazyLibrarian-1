@@ -57,19 +57,19 @@ def searchbook(books=None):
     if not lazylibrarian.SAB_HOST and not lazylibrarian.BLACKHOLE:
         logger.info('No download method is set, use SABnzbd or blackhole')
 
-    if not lazylibrarian.NEWZNAB and not lazylibrarian.NZBMATRIX:
-        logger.info('No providers are set. use NEWZNAB or NZBMATRIX')
+    if not lazylibrarian.NEWZNAB and not lazylibrarian.NEWZNAB2:
+        logger.info('No providers are set. use NEWZNAB.')
 
     counter = 0
     for book in searchlist:
         resultlist = []
-        if lazylibrarian.NEWZNAB and not resultlist:
+        if lazylibrarian.NEWZNAB:
             logger.debug('Searching NZB\'s at provider %s ...' % lazylibrarian.NEWZNAB_HOST)
-            resultlist = providers.NewzNab(book)
+            resultlist = providers.NewzNab(book, "1")
 
-        if lazylibrarian.NZBMATRIX and not resultlist:
-            logger.debug('Searching NZB at provider NZBMatrix ...')
-            resultlist = providers.NZBMatrix(book)
+        if lazylibrarian.NEWZNAB2:
+            logger.debug('Searching NZB\'s at provider %s ...' % lazylibrarian.NEWZNAB_HOST2)
+            resultlist += providers.NewzNab(book, "2")
 
         if not resultlist:
             logger.debug("Adding book %s to queue." % book['searchterm'])
@@ -173,8 +173,3 @@ def DownloadMethod(bookid=None, nzbprov=None, nzbtitle=None, nzburl=None):
     else:
         logger.error(u'Failed to download nzb @ <a href="%s">%s</a>' % (nzburl, lazylibrarian.NEWZNAB_HOST))
         myDB.action('UPDATE wanted SET status = "Failed" WHERE NZBurl=?', [nzburl])
-
-
-
-
-

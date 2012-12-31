@@ -72,6 +72,10 @@ NEWZNAB = False
 NEWZNAB_HOST = None
 NEWZNAB_API = None
 
+NEWZNAB2 = False
+NEWZNAB_HOST2 = None
+NEWZNAB_API2 = None
+
 NEWZBIN = False
 NEWZBIN_UID = None
 NEWZBIN_PASSWORD = None
@@ -168,7 +172,7 @@ def initialize():
 
         global __INITIALIZED__, FULL_PATH, PROG_DIR, LOGLEVEL, DAEMON, DATADIR, CONFIGFILE, CFG, LOGDIR, HTTP_HOST, HTTP_PORT, HTTP_USER, HTTP_PASS, HTTP_ROOT, HTTP_LOOK, LAUNCH_BROWSER, LOGDIR, CACHEDIR, \
             IMP_ONLYISBN, IMP_PREFLANG, SAB_HOST, SAB_PORT, SAB_API, SAB_USER, SAB_PASS, DESTINATION_DIR, DESTINATION_COPY, DOWNLOAD_DIR, SAB_CAT, USENET_RETENTION, BLACKHOLE, BLACKHOLEDIR, GR_API, \
-            NZBMATRIX, NZBMATRIX_USER, NZBMATRIX_API, NEWZNAB, NEWZNAB_HOST, NEWZNAB_API, NEWZBIN, NEWZBIN_UID, NEWZBIN_PASS, EBOOK_TYPE
+            NZBMATRIX, NZBMATRIX_USER, NZBMATRIX_API, NEWZNAB, NEWZNAB_HOST, NEWZNAB_API, NEWZBIN, NEWZBIN_UID, NEWZBIN_PASS, NEWZNAB2, NEWZNAB_HOST2, NEWZNAB_API2, EBOOK_TYPE
 
         if __INITIALIZED__:
             return False
@@ -218,6 +222,10 @@ def initialize():
         NEWZNAB = bool(check_setting_int(CFG, 'Newznab', 'newznab', 0))
         NEWZNAB_HOST = check_setting_str(CFG, 'Newznab', 'newznab_host', '')
         NEWZNAB_API = check_setting_str(CFG, 'Newznab', 'newznab_api', '')
+
+        NEWZNAB2 = bool(check_setting_int(CFG, 'Newznab2', 'newznab2', 0))
+        NEWZNAB_HOST2 = check_setting_str(CFG, 'Newznab2', 'newznab_host2', '')
+        NEWZNAB_API2 = check_setting_str(CFG, 'Newznab2', 'newznab_api2', '')
 
         NEWZBIN = bool(check_setting_int(CFG, 'Newzbin', 'newzbin', 0))
         NEWZBIN_UID = check_setting_str(CFG, 'Newzbin', 'newzbin_uid', '')
@@ -355,6 +363,11 @@ def config_write():
     new_config['Newznab']['newznab'] = int(NEWZNAB)
     new_config['Newznab']['newznab_host'] = NEWZNAB_HOST
     new_config['Newznab']['newznab_api'] = NEWZNAB_API
+
+    new_config['Newznab2'] = {}
+    new_config['Newznab2']['newznab2'] = int(NEWZNAB2)
+    new_config['Newznab2']['newznab_host2'] = NEWZNAB_HOST2
+    new_config['Newznab2']['newznab_api2'] = NEWZNAB_API2
 
     new_config['Newzbin'] = {}
     new_config['Newzbin']['newzbin'] = int(NEWZBIN)

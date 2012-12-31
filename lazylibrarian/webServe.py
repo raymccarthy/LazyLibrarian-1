@@ -83,13 +83,13 @@ class WebInterface(object):
                     "usenet_retention": lazylibrarian.USENET_RETENTION,
                     "use_blackhole":    checked(lazylibrarian.BLACKHOLE),
                     "blackholedir":     lazylibrarian.BLACKHOLEDIR,
-                    "use_nzbmatrix" :   checked(lazylibrarian.NZBMATRIX),
-                    "nzbmatrix_user" :  lazylibrarian.NZBMATRIX_USER,
-                    "nzbmatrix_api" :   lazylibrarian.NZBMATRIX_API,
                     "use_newznab" :     checked(lazylibrarian.NEWZNAB),
                     "newznab_host" :    lazylibrarian.NEWZNAB_HOST,
                     "newznab_api" :     lazylibrarian.NEWZNAB_API,
-                    "use_newzbin" :     checked(lazylibrarian.NEWZBIN),
+                    "use_newznab2" :     checked(lazylibrarian.NEWZNAB2),
+                    "newznab_host2" :    lazylibrarian.NEWZNAB_HOST2,
+                    "newznab_api2" :     lazylibrarian.NEWZNAB_API2,
+                                        "use_newzbin" :     checked(lazylibrarian.NEWZBIN),
                     "newzbin_uid" :     lazylibrarian.NEWZBIN_UID,
                     "newzbin_pass" :    lazylibrarian.NEWZBIN_PASS,
                     "ebook_type" :		lazylibrarian.EBOOK_TYPE,
@@ -100,7 +100,7 @@ class WebInterface(object):
 
     def configUpdate(self, http_host='0.0.0.0', http_user=None, http_port=5299, http_pass=None, http_look=None, launch_browser=0, logdir=None, imp_onlyisbn=0, imp_preflang=None,
         sab_host=None, sab_port=None, sab_api=None, sab_user=None, sab_pass=None, destination_copy=0, destination_dir=None, download_dir=None, sab_cat=None, usenet_retention=None, blackhole=0, blackholedir=None,
-        nzbmatrix=0, nzbmatrix_user=None, nzbmatrix_api=None, newznab=0, newznab_host=None, newznab_api=None, newzbin=0, newzbin_uid=None, newzbin_pass=None, ebook_type=None, gr_api=None):
+        newznab=0, newznab_host=None, newznab_api=None, newznab2=0, newznab_host2=None, newznab_api2=None,newzbin=0, newzbin_uid=None, newzbin_pass=None, ebook_type=None, gr_api=None):
 
         lazylibrarian.HTTP_HOST = http_host
         lazylibrarian.HTTP_PORT = http_port
@@ -127,13 +127,13 @@ class WebInterface(object):
         lazylibrarian.BLACKHOLE = blackhole
         lazylibrarian.BLACKHOLEDIR = blackholedir
 
-        lazylibrarian.NZBMATRIX = nzbmatrix
-        lazylibrarian.NZBMATRIX_USER = nzbmatrix_user
-        lazylibrarian.NZBMATRIX_API = nzbmatrix_api
-
         lazylibrarian.NEWZNAB = newznab
         lazylibrarian.NEWZNAB_HOST = newznab_host
         lazylibrarian.NEWZNAB_API = newznab_api
+
+        lazylibrarian.NEWZNAB2 = newznab2
+        lazylibrarian.NEWZNAB_HOST2 = newznab_host2
+        lazylibrarian.NEWZNAB_API2 = newznab_api2
 
         lazylibrarian.NEWZBIN = newzbin
         lazylibrarian.NEWZBIN_UID = newzbin_uid

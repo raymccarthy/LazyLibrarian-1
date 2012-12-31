@@ -7,12 +7,16 @@ import lazylibrarian
 from lazylibrarian import logger, SimpleCache
 
 
-def NewzNab(book=None):
+def NewzNab(book=None, newznabNumber=None):
 
-    HOST = lazylibrarian.NEWZNAB_HOST
+    if (newznabNumber == "1"):
+        HOST = lazylibrarian.NEWZNAB_HOST
+        logger.info('Searching for %s.' % book['searchterm'] + " at: " + lazylibrarian.NEWZNAB_HOST)
+    if (newznabNumber == "2"):
+        HOST = lazylibrarian.NEWZNAB_HOST2
+        logger.info('Searching for %s.' % book['searchterm'] + " at: " + lazylibrarian.NEWZNAB_HOST2)
+
     results = []
-
-    logger.info('Searching for %s.' % book['searchterm'])
 
     if lazylibrarian.EBOOK_TYPE == None:
         params = {
@@ -74,60 +78,4 @@ def NewzNab(book=None):
             logger.debug('Found %s nzb for: %s' % (nzbcount, book['searchterm']))
         else:
             logger.debug(u'Newznab returned 0 results for: ' + book['searchterm'] + '. Adding book to queue.')
-    return results
-
-def NZBMatrix(book=None):
-
-    results = []
-
-    if ((lazylibrarian.EBOOK_TYPE == None) or (lazylibrarian.EBOOK_TYPE == "")):
-        params = {
-            "page": "download",
-            "username": lazylibrarian.NZBMATRIX_USER,
-            "apikey": lazylibrarian.NZBMATRIX_API,
-            "subcat": 36,
-            "age": lazylibrarian.USENET_RETENTION,
-            "term": book['searchterm']
-        }
-    else:
-        params = {
-            "page": "download",
-            "username": lazylibrarian.NZBMATRIX_USER,
-            "apikey": lazylibrarian.NZBMATRIX_API,
-            "subcat": 36,
-            "age": lazylibrarian.USENET_RETENTION,
-            "term": book['searchterm']
-        }
-        logger.debug('Searching for: ' + book['searchterm'])
-    URL = "http://rss.nzbmatrix.com/rss.php?" + urllib.urlencode(params)
-    # to debug because of api
-    logger.debug(u'Parsing results from <a href="%s">NZBMatrix</a>' % (URL))
-
-    try:
-        data = ElementTree.parse(urllib2.urlopen(URL, timeout=30))
-    except (urllib2.URLError, IOError, EOFError), e:
-        logger.warn('Error fetching data from NZBMatrix: %s' % e)
-        data = None
-
-    if data:
-        rootxml = data.getroot()
-        resultxml = rootxml.getiterator('item')
-        nzbcount = 0
-        for nzb in resultxml:
-            try:
-                results.append({
-                    'bookid': book['bookid'],
-                    'nzbprov': "NZBMatrix",
-                    'nzbtitle': nzb[0].text,
-                    'nzburl': nzb[2].text,
-                    'nzbsize': nzb[7].attrib.get('length')
-                    })
-                nzbcount = nzbcount+1
-            except IndexError:
-                logger.debug('No results')
-
-        if nzbcount:
-            logger.debug('Found %s nzb for: %s' % (nzbcount, book['searchterm']))
-        else:
-            logger.debug('NZBMatrix returned 0 results for: ' + book['searchterm'] + '. Adding book to queue.')
     return results
