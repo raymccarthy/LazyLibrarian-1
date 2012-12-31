@@ -134,11 +134,12 @@ class GoodReads:
 
 						if (book.find('isbn13').text is not None):
 							BOOK_URL = 'http://www.goodreads.com/book/isbn?isbn=' + book.find('isbn13').text + '&' + urllib.urlencode(self.params) 
+
 							logger.debug(u"Book URL: " + str(BOOK_URL))
 							
 							try:
 							    # Cache our request
-							    request = urllib2.Request(set_url)
+							    request = urllib2.Request(BOOK_URL)
 							    opener = urllib2.build_opener(SimpleCache.CacheHandler(".AuthorCache"), SimpleCache.ThrottlingProcessor(5))
 							    resp = opener.open(request)
 							except Exception, e:
@@ -180,7 +181,7 @@ class GoodReads:
 						myDB.upsert("books", newValueDict, controlValueDict)
 
 						logger.debug(u"book found " + book.find('title').text + " " + pubyear)
-                       
+
 						resultsCount = resultsCount + 1
 					logger.debug(u"book found " + book.find('title').text + " " + pubyear)
 					if  (re.match('[^\w-]', book.find('title').text)):
@@ -204,69 +205,68 @@ class GoodReads:
         logger.debug("Removed %s non-english and no publication year results for author" % removedResults)
         logger.debug("Found %s books for author" % resultsCount)
         return books_dict
-		
+	
     def find_results(self, authorname=None):
-		resultlist = []
-		logger.info(authorname)
-		url = urllib.quote_plus(authorname)
-		set_url = 'http://www.goodreads.com/search.xml?q=' + url + '&' + urllib.urlencode(self.params)
+        resultlist = []
+        logger.info(authorname)
+        url = urllib.quote_plus(authorname)
+        set_url = 'http://www.goodreads.com/search.xml?q=' + url + '&' + urllib.urlencode(self.params)
+        logger.info('Searching for author at: %s' % set_url)
 
-		logger.info('Searching for author at: %s' % set_url)
+        try:
 
-		try:
+            try:
+                # Cache our request
+                request = urllib2.Request(set_url)
+                opener = urllib2.build_opener(SimpleCache.CacheHandler(".AuthorCache"), SimpleCache.ThrottlingProcessor(5))
+                resp = opener.open(request)
+                sourcexml = ElementTree.parse(resp)
+            except Exception, e:
+                logger.error("Error finding results: " + str(e))
 
-			try:
-			    # Cache our request
-			    request = urllib2.Request(set_url)
-			    opener = urllib2.build_opener(SimpleCache.CacheHandler(".AuthorCache"), SimpleCache.ThrottlingProcessor(5))
-			    resp = opener.open(request)
-			    sourcexml = ElementTree.parse(resp)
-			except Exception, e:
-			    logger.error("Error finding results: " + str(e))
+            rootxml = sourcexml.getroot()
+            resultxml = rootxml.getiterator('work')
+            author_dict = []
+            resultcount = 0
+            for author in resultxml:
+                bookdate = "0001-01-01"
 
-			rootxml = sourcexml.getroot()
-			resultxml = rootxml.getiterator('work')
-			author_dict = []
-			resultcount = 0
-			for author in resultxml:
-				bookdate = "0001-01-01"
-						
-				if (author.find('original_publication_year').text == None):
-					bookdate = "0000"
-				else:
-					bookdate = author.find('original_publication_year').text
-		
-				authorNameResult = author.find('./best_book/author/name').text
-				booksub = ""
-				bookpub = ""
-				booklang = "en"
-				
-				try:
-					bookimg = author.find('./best_book/image_url').text
-					if (bookimg == 'http://www.goodreads.com/assets/nocover/111x148.png'):
-						bookimg = 'images/nocover.png'
-				except KeyError:
-					bookimg = 'images/nocover.png'
-				except AttributeError:
-					bookimg = 'images/nocover.png'
+                if (author.find('original_publication_year').text == None):
+                    bookdate = "0000"
+                else:
+                    bookdate = author.find('original_publication_year').text
 
-				try:
-					bookrate = author.find('average_rating').text
-				except KeyError:
-					bookrate = 0
+                authorNameResult = author.find('./best_book/author/name').text
+                booksub = ""
+                bookpub = ""
+                booklang = "en"
 
-				bookpages = '0'
-				bookgenre = ''
-				bookdesc = 'Not available'
-				
-				bookisbn = author.find('./best_book/id').text
-				
-				if (author.find('./best_book/title').text == None):
-					bookTitle = ""
-				else:
-					bookTitle = author.find('./best_book/title').text
+                try:
+                    bookimg = author.find('./best_book/image_url').text
+                    if (bookimg == 'http://www.goodreads.com/assets/nocover/111x148.png'):
+                        bookimg = 'images/nocover.png'
+                except KeyError:
+                    bookimg = 'images/nocover.png'
+                except AttributeError:
+                    bookimg = 'images/nocover.png'
 
-				resultlist.append({
+                try:
+                    bookrate = author.find('average_rating').text
+                except KeyError:
+                    bookrate = 0
+
+                bookpages = '0'
+                bookgenre = ''
+                bookdesc = 'Not available'
+
+                bookisbn = author.find('./best_book/id').text
+
+                if (author.find('./best_book/title').text == None):
+                    bookTitle = ""
+                else:
+                    bookTitle = author.find('./best_book/title').text
+
+                resultlist.append({
 					'authorname': author.find('./best_book/author/name').text,
 					'bookid': author.find('./best_book/id').text,
 					'authorid' : author.find('./best_book/author/id').text,
@@ -284,18 +284,16 @@ class GoodReads:
 					'bookdesc': bookdesc
 				})
 
-				resultcount = resultcount+1
+                resultcount = resultcount+1
 
-	        except urllib2.HTTPError, err:               	
-	        	if err.code == 404:
-		        	logger.info('Received a 404 error when searching for author')
-		        if err.code == 403:
-		            	logger.info('Access to api is denied: usage exceeded')
-		        else:
-		                logger.info('An unexpected error has occurred when searching for an author')
+        except urllib2.HTTPError, err:               	
+            if err.code == 404:
+                logger.info('Received a 404 error when searching for author')
+            if err.code == 403:
+                logger.info('Access to api is denied: usage exceeded')
+            else:
+                logger.info('An unexpected error has occurred when searching for an author')
 
-	        logger.info('Found %s results' % (resultcount))
+            logger.info('Found %s results' % (resultcount))
 
-		return resultlist
-
-
+        return resultlist
