@@ -53,7 +53,7 @@ def processDir():
                 		    logger.debug("Could not chmod author directory");
 
                 		dest_path = authorname + os.sep + bookname
-                		dic = {'<':'', '>':'', '=':'', '?':'', '"':'', ',':'', '*':'', ':':'', ';':'', '\'':''}
+                		dic = {'<':'', '>':'', '...':'', ' & ':' ', ' = ': ' ', '?':'', '$':'s', ' + ':' ', '"':'', ',':'', '*':'', ':':'', ';':'', '\'':''}
                 		dest_path = formatter.latinToAscii(formatter.replace_all(dest_path, dic))
                 		dest_path = os.path.join(lazylibrarian.DESTINATION_DIR, dest_path).encode(lazylibrarian.SYS_ENCODING)
 

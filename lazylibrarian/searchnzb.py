@@ -40,7 +40,7 @@ def searchbook(books=None):
         author = searchbook[1]
         book = searchbook[2]
 
-        dic = {'...':'', ' & ':' ', ' = ': ' ', '?':'', '$':'s', ' + ':' ', '"':'', ',':'', '*':'', ':':''}
+        dic = {'...':'', ' & ':' ', ' = ': ' ', '?':'', '$':'s', ' + ':' ', '"':'', ',':'', '*':'', ':':'', ';':''}
         dicSearchFormatting = {'.':' +', ' + ':' '}
 
         author = formatter.latinToAscii(formatter.replace_all(author, dic))
