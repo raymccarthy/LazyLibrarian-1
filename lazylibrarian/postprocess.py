@@ -130,7 +130,7 @@ def processDestination(pp_path=None, dest_path=None, authorname=None, bookname=N
 def processIMG(dest_path=None, bookimg=None):
     #handle pictures
     try:
-        if not bookimg == ('images' + os.sep + 'nocover.png'):
+        if not bookimg == ('images/nocover.png'):
             logger.debug('Downloading cover from ' + bookimg)
             coverpath = os.path.join(dest_path, 'cover.jpg')
             img = open(coverpath,'wb')
