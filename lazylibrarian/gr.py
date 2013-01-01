@@ -206,9 +206,12 @@ class GoodReads:
         logger.debug("Found %s books for author" % resultsCount)
         return books_dict
 	
+#Added .encode('iso-8859-1') to allow for characters other than utf-8 to be used in the search function. Lowered it below logger.info or the logger breaks.
+	
     def find_results(self, authorname=None):
         resultlist = []
         logger.info(authorname)
+        authorname=authorname.encode('iso-8859-1')
         url = urllib.quote_plus(authorname)
         set_url = 'http://www.goodreads.com/search.xml?q=' + url + '&' + urllib.urlencode(self.params)
         logger.info('Searching for author at: %s' % set_url)
