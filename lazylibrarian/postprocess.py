@@ -7,7 +7,7 @@ import lazylibrarian
 from lazylibrarian import database, logger, formatter
 
 def processDir():
-    logger.info('Postprocessing has begun.')
+    logger.debug('Postprocessing has begun.')
 	
     # rename this thread
     threading.currentThread().name = "POSTPROCESS"
