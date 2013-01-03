@@ -77,6 +77,7 @@ def searchbook(books=None):
         else:
             dictrepl = {'...':'', ' & ':' ', ' = ': ' ', '?':'', '$':'s', ' + ':' ', '"':'', ',':'', '*':'', '(':'', ')':'', '[':'', ']':'', '#':'', '0':'', '1':'', '2':'', '3':'', '4':'', '5':'', '6':'', '7':'', '8':'' , '9':'', '\'':'', ':':'', '\s\s':' ' }
             bookName = book['bookName']
+            bookID = book['bookid']
             bookName = re.sub('[\.\-\/]', ' ', bookName)
             bookName = re.sub(r'\(.*?\)', '', bookName)
             bookName = formatter.latinToAscii(formatter.replace_all(bookName, dictrepl)).strip()
@@ -98,7 +99,7 @@ def searchbook(books=None):
 					logger.debug(u'FOUND %s' % nzbTitle.lower())
 					addedCounter = addedCounter + 1
 					bookid = nzb['bookid']
-					nzbTitle = (book["authorName"] + ' ' + bookName).strip()
+					nzbTitle = (book["authorName"] + ' - ' + bookName + ' LL.(' + bookID + ')').strip()
 					nzburl = nzb['nzburl']
 					nzbprov = nzb['nzbprov']
 
