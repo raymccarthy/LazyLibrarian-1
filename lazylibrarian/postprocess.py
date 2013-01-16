@@ -7,7 +7,7 @@ import lazylibrarian
 from lazylibrarian import database, logger, formatter
 
 def processDir():
-    logger.info('Postprocessing has begun.')
+    logger.debug('Postprocessing has begun.')
 	
     # rename this thread
     threading.currentThread().name = "POSTPROCESS"
@@ -24,15 +24,16 @@ def processDir():
     else:
         ppcount=0
 
-        for book in snatched:
-            if book['NZBtitle'] in downloads:
-                logger.debug('nzbtitle ' + book['NZBtitle'] + ' is in downloads')
-                pp_path = os.path.join(processpath, book['NZBtitle'])
+        for directory in downloads:
+            if "LL.(" in directory:
+                bookID = str(directory).split("LL.(")[1].split(")")[0];
+                logger.debug("Book with id: " + str(bookID) + " is in downloads");
+                pp_path = os.path.join(processpath, directory)
 
                 if (os.path.exists(pp_path)):
                 	logger.debug('Found folder %s.' % pp_path)
 
-                	data = myDB.select("SELECT * from books WHERE BookID='%s'" % book['BookID'])
+                	data = myDB.select("SELECT * from books WHERE BookID='%s'" % bookID)
                 	for metadata in data:
                 		authorname = metadata['AuthorName']
                 		authorimg = metadata['AuthorLink']
@@ -67,15 +68,15 @@ def processDir():
                 		    processIMG(dest_path, bookimg)
 
                 		    # try metadata
-                		    processOPF(dest_path, authorname, bookname, bookisbn, book['BookID'], bookpub, bookdate, bookdesc, booklang)
+                		    processOPF(dest_path, authorname, bookname, bookisbn, bookID, bookpub, bookdate, bookdesc, booklang)
 
                 		    #update nzbs
-                		    controlValueDict = {"NZBurl": book['NZBurl']}
+                		    controlValueDict = {"NZBurl": directory}
                 		    newValueDict = {"Status": "Success"}
                 		    myDB.upsert("wanted", newValueDict, controlValueDict)
 
                 		    #update books
-                		    controlValueDict = {"BookID": book['BookID']}
+                		    controlValueDict = {"BookID": bookID}
                 		    newValueDict = {"Status": "Open"}
                 		    myDB.upsert("books", newValueDict, controlValueDict)
 
@@ -91,25 +92,24 @@ def processDir():
                 		else:
                 		    logger.info('Postprocessing for %s has failed.' % bookname)
         if ppcount:
-            logger.info('%s books are downloaded and processed.' % ppcount)
+            logger.debug('%s books are downloaded and processed.' % ppcount)
         else:
-            logger.info('No snatched books have been found')
+            logger.debug('No snatched books have been found')
 
 def processDestination(pp_path=None, dest_path=None, authorname=None, bookname=None):
 
-    if not os.path.exists(dest_path):
-        logger.debug('%s does not exist, so it\'s safe to create it' % dest_path)
-    else:
-        logger.debug('%s already exsists. It will be overwritten' % dest_path)
     try:
-        if lazylibrarian.DESTINATION_COPY:
-            logger.debug('Attempting to copy tree')
-            shutil.copytree(pp_path, dest_path)
-            logger.debug('Successfully copied %s to %s.' % (pp_path, dest_path))
+        if not os.path.exists(dest_path):
+            logger.debug('%s does not exist, so it\'s safe to create it' % dest_path)
         else:
-            logger.debug('Attempting to move tree')
-            shutil.move(pp_path, dest_path)
-            logger.debug('Successfully moved %s to %s.' % (pp_path, dest_path))
+            logger.debug('%s already exsists. It will be overwritten' % dest_path)
+            logger.debug('Removing exsisting tree')
+            shutil.rmtree(dest_path)
+
+        logger.debug('Attempting to move tree')
+        shutil.move(pp_path, dest_path)
+        logger.debug('Successfully copied %s to %s.' % (pp_path, dest_path))
+
         pp = True
         
         #try and rename the actual book file
