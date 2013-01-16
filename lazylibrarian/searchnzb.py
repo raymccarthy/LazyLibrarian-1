@@ -7,6 +7,9 @@ import lazylibrarian
 
 from lazylibrarian import logger, database, formatter, providers, sabnzbd
 
+import lib.fuzzywuzzy as fuzzywuzzy
+from lib.fuzzywuzzy import fuzz, process
+
 def searchbook(books=None):
 
     # rename this thread
@@ -75,30 +78,24 @@ def searchbook(books=None):
             logger.debug("Adding book %s to queue." % book['searchterm'])
 
         else:
-            dictrepl = {'...':'', ' & ':' ', ' = ': ' ', '?':'', '$':'s', ' + ':' ', '"':'', ',':'', '*':'', '(':'', ')':'', '[':'', ']':'', '#':'', '0':'', '1':'', '2':'', '3':'', '4':'', '5':'', '6':'', '7':'', '8':'' , '9':'', '\'':'', ':':'', '\s\s':' ' }
+            dictrepl = {'...':'', ' & ':' ', ' = ': ' ', '?':'', '$':'s', ' + ':' ', '"':'', ',':'', '*':'', '(':'', ')':'', '[':'', ']':'', '#':'', '0':'', '1':'', '2':'', '3':'', '4':'', '5':'', '6':'', '7':'', '8':'' , '9':'', '\'':'', ':':'', '!':'', '-':'', '\s\s':' ', ' the ':' ', ' a ':' ', ' and ':' ', ' to ':' ', ' of ':' ', ' for ':' ', ' my ':' ', ' in ':' ', ' at ':' ', ' with ':' ' }
             bookName = book['bookName']
+            bookID = book['bookid']
             bookName = re.sub('[\.\-\/]', ' ', bookName)
             bookName = re.sub(r'\(.*?\)', '', bookName)
-            bookName = formatter.latinToAscii(formatter.replace_all(bookName, dictrepl)).strip()
+            bookName = formatter.latinToAscii(formatter.replace_all(bookName.lower(), dictrepl)).strip()
             logger.debug(u'bookName %s' % bookName)
             addedCounter = 0
 
             for nzb in resultlist:
-				nzbTitle = formatter.latinToAscii(formatter.replace_all(nzb['nzbtitle'], dictrepl)).strip()
+				nzbTitle = formatter.latinToAscii(formatter.replace_all(str(nzb['nzbtitle']).lower(), dictrepl)).strip()
 				logger.debug(u'nzbName %s' % nzbTitle)
-				nameFound = 0
-				
-				bookNameList = bookName.split()
-
-				for word in bookNameList:
-					if nzbTitle.lower().find(word.lower()) == -1:
-						nameFound = -1
-						
-				if nameFound == 0:
+				logger.debug("NZB Match %: " + str(fuzz.partial_ratio(bookName, nzbTitle)))	
+				if (fuzz.partial_ratio(bookName, nzbTitle) > 80):
 					logger.debug(u'FOUND %s' % nzbTitle.lower())
 					addedCounter = addedCounter + 1
 					bookid = nzb['bookid']
-					nzbTitle = (book["authorName"] + ' ' + bookName).strip()
+					nzbTitle = (book["authorName"] + ' - ' + book['bookName'] + ' LL.(' + bookID + ')').strip()
 					nzburl = nzb['nzburl']
 					nzbprov = nzb['nzbprov']
 
@@ -115,7 +112,7 @@ def searchbook(books=None):
 					snatchedbooks = myDB.action('SELECT * from books WHERE BookID=? and Status="Snatched"', [bookid]).fetchone()
 					if not snatchedbooks:
 						snatch = DownloadMethod(bookid, nzbprov, nzbTitle, nzburl)
-					time.sleep(1)
+					break;
             if addedCounter == 0:
             	logger.info("No nzb's found for " + (book["authorName"] + ' ' + bookName).strip() + ". Adding book to queue.")
         counter = counter + 1
