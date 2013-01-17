@@ -41,7 +41,7 @@ def NewzNab(book=None, newznabNumber=None):
 
     try :
         request = urllib2.Request(URL)
-        request.add_header('User-Agent', 'lazylibrary/0.0 +https://github.com/LibrarianMike/LazyLibrarian')
+        request.add_header('User-Agent', 'lazylibrary/0.0 +https://github.com/herman-rogers/LazyLibrarian-1')
         opener = urllib2.build_opener(SimpleCache.CacheHandler(".ProviderCache"), SimpleCache.ThrottlingProcessor(5))
         resp = opener.open(request)
 
