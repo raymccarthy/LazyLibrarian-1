@@ -82,8 +82,8 @@ class GoodReads:
 
     def get_author_books(self, authorid=None):
 
-        URL = 'http://www.goodreads.com/author/list/' + authorid + '.xml?' + urllib.urlencode(self.params) 
-
+        URL = 'http://www.goodreads.com/author/list/' + authorid + '.xml?' + urllib.urlencode(self.params)
+        
         try:
             # Cache our request
             request = urllib2.Request(URL)
@@ -109,9 +109,10 @@ class GoodReads:
 
             authorNameResult = rootxml.find('./author/name').text
             logger.debug(u"author name " + authorNameResult)
-
             loopCount = 1;
+            
             while (len(resultxml)):
+				
 				for book in resultxml:
 					if (book.find('publication_year').text == None):
 						pubyear = "0000"
@@ -128,9 +129,9 @@ class GoodReads:
 						bookimg = 'images/nocover.png'
 
 					bookLanguage = 'Unknown'
-
+					
 					try:
-						time.sleep(1) #sleep 1 seccond to respect goodreads api terms
+						time.sleep(1) #sleep 1 second to respect goodreads api terms
 
 						if (book.find('isbn13').text is not None):
 							BOOK_URL = 'http://www.goodreads.com/book/isbn?isbn=' + book.find('isbn13').text + '&' + urllib.urlencode(self.params) 
@@ -179,17 +180,28 @@ class GoodReads:
 						}
 
 						myDB.upsert("books", newValueDict, controlValueDict)
-
 						logger.debug(u"book found " + book.find('title').text + " " + pubyear)
-
 						resultsCount = resultsCount + 1
+						
+						lastbook = myDB.action("SELECT BookName, BookLink, BookDate from books WHERE AuthorID='%s' order by BookDate DESC" % authorid).fetchone()
+						bookCount = myDB.select("SELECT COUNT(BookName) as counter FROM books WHERE AuthorID='%s'" % authorid)			
+						for count in bookCount:
+						    controlValueDict = {"AuthorID": authorid}
+						    newValueDict = {
+						            "Status": "Active",
+						            "TotalBooks": count['counter'],
+						            "LastBook": lastbook['BookName'],
+						            "LastLink": lastbook['BookLink'],
+						            "LastDate": lastbook['BookDate']
+						            }
+						    myDB.upsert("authors", newValueDict, controlValueDict)
+						    
 					logger.debug(u"book found " + book.find('title').text + " " + pubyear)
 					if  (re.match('[^\w-]', book.find('title').text)):
 						removedResults = removedResults + 1
-
 				loopCount = loopCount + 1
 				URL = 'http://www.goodreads.com/author/list/' + authorid + '.xml?' + urllib.urlencode(self.params) + '&page=' + str(loopCount)
-
+				
 				try:
 				    # Cache our request
 				    request1 = urllib2.Request(URL)
@@ -201,9 +213,11 @@ class GoodReads:
 				sourcexml = ElementTree.parse(resp1)
 				rootxml = sourcexml.getroot()
 				resultxml = rootxml.getiterator('book')
+				
 					
         logger.debug("Removed %s non-english and no publication year results for author" % removedResults)
         logger.debug("Found %s books for author" % resultsCount)
+        logger.info("Processing complete: Added %s books to the database" % str(count['counter']))
         return books_dict
 	
 #Added .encode to allow for characters to be converted to utf-8 to be used in the search function.
