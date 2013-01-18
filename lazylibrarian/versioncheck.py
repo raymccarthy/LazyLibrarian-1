@@ -1,4 +1,3 @@
-
 import platform, subprocess, re, os, urllib2, tarfile, threading
 
 import lazylibrarian
@@ -6,7 +5,7 @@ from lazylibrarian import logger, version
 
 import lib.simplejson as simplejson
 
-user = "LibrarianMike"
+user = "herman-rogers"
 branch = "master"
 
 def runGit(args):
@@ -96,7 +95,7 @@ def checkForUpdates():
 def checkGithub():
 
     # Get the latest commit available from github
-    url = 'https://api.github.com/repos/%s/LazyLibrarian/commits/%s' % (user, branch)
+    url = 'https://api.github.com/repos/%s/LazyLibrarian-1/commits/%s' % (user, branch)
     logger.info ('Retrieving latest version information from github')
     try:
         result = urllib2.urlopen(url).read()
@@ -161,7 +160,7 @@ def update():
                 
     else:
     
-        tar_download_url = 'https://github.com/%s/lazylibrarian/tarball/%s' % (user, branch)
+        tar_download_url = 'https://github.com/%s/lazylibrarian-1/tarball/%s' % (user, branch)
         update_dir = os.path.join(lazylibrarian.PROG_DIR, 'update')
         version_path = os.path.join(lazylibrarian.PROG_DIR, 'version.txt')
         

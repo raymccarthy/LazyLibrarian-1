@@ -132,7 +132,7 @@ def DownloadMethod(bookid=None, nzbprov=None, nzbtitle=None, nzburl=None):
 
         try:
             req = urllib2.Request(nzburl)
-            req.add_header('User-Agent', 'lazylibrary/0.0 +https://github.com/LibrarianMike/LazyLibrarian')
+            req.add_header('User-Agent', 'lazylibrary/0.0 +https://github.com/herman-rogers/LazyLibrarian-1')
             nzbfile = urllib2.urlopen(req, timeout=90).read()
    
 
