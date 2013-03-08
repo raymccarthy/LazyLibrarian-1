@@ -109,7 +109,7 @@ def checkGithub():
     # See how many commits behind we are    
     if lazylibrarian.CURRENT_VERSION:
         logger.info('Comparing currently installed version with latest github version')
-        url = 'https://api.github.com/repos/%s/LazyLibrarian/compare/%s...%s' % (user, lazylibrarian.CURRENT_VERSION, lazylibrarian.LATEST_VERSION)
+        url = 'https://api.github.com/repos/%s/LazyLibrarian-1/compare/%s...%s' % (user, lazylibrarian.CURRENT_VERSION, lazylibrarian.LATEST_VERSION)
         
         try:
             result = urllib2.urlopen(url).read()
